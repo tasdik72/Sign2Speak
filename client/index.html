@@ -11,9 +11,16 @@
     <meta property="og:type" content="website">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <base href="/" />
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // Debug script to check if assets are loading
+      window.addEventListener('error', function(event) {
+        console.error('Error loading resource:', event.filename, event.message);
+      }, true);
+    </script>
   </body>
 </html>
