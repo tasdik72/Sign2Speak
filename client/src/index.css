@@ -1,0 +1,163 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(0, 0%, 0%);
+  --muted: hsl(0, 0%, 96%);
+  --muted-foreground: hsl(0, 0%, 45%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(0, 0%, 0%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(0, 0%, 0%);
+  --border: hsl(0, 0%, 90%);
+  --input: hsl(0, 0%, 90%);
+  --primary: hsl(0, 0%, 0%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(0, 0%, 96%);
+  --secondary-foreground: hsl(0, 0%, 0%);
+  --accent: hsl(0, 0%, 96%);
+  --accent-foreground: hsl(0, 0%, 0%);
+  --destructive: hsl(0, 0%, 0%);
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --ring: hsl(0, 0%, 0%);
+  --radius: 0.75rem;
+
+  /* Sign2Speak specific colors - Black and White only */
+  --primary-50: hsl(0, 0%, 98%);
+  --primary-100: hsl(0, 0%, 95%);
+  --primary-500: hsl(0, 0%, 0%);
+  --primary-600: hsl(0, 0%, 0%);
+  --primary-700: hsl(0, 0%, 0%);
+  --primary-900: hsl(0, 0%, 0%);
+  
+  --gray-50: hsl(0, 0%, 98%);
+  --gray-100: hsl(0, 0%, 96%);
+  --gray-200: hsl(0, 0%, 90%);
+  --gray-300: hsl(0, 0%, 83%);
+  --gray-400: hsl(0, 0%, 64%);
+  --gray-500: hsl(0, 0%, 45%);
+  --gray-600: hsl(0, 0%, 32%);
+  --gray-700: hsl(0, 0%, 25%);
+  --gray-800: hsl(0, 0%, 15%);
+  --gray-900: hsl(0, 0%, 9%);
+
+  --success: hsl(0, 0%, 0%);
+  --warning: hsl(0, 0%, 0%);
+  --error: hsl(0, 0%, 0%);
+}
+
+.dark {
+  --background: hsl(240, 10%, 3.9%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 3.7%, 15.9%);
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(240, 10%, 3.9%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(240, 10%, 3.9%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 3.7%, 15.9%);
+  --input: hsl(240, 3.7%, 15.9%);
+  --primary: hsl(166, 76%, 46%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(240, 3.7%, 15.9%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(240, 3.7%, 15.9%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(240, 4.9%, 83.9%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold;
+  }
+}
+
+@layer components {
+  .btn-hover {
+    @apply transition-all duration-200 ease-in-out;
+  }
+  
+  .btn-hover:hover {
+    @apply scale-105;
+  }
+  
+  .card-hover {
+    @apply transition-all duration-200 ease-in-out;
+  }
+  
+  .card-hover:hover {
+    @apply scale-[1.02] shadow-lg;
+  }
+  
+  .fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+  
+  .pulse-animation {
+    animation: pulse 2s infinite;
+  }
+
+  .camera-placeholder {
+    background: linear-gradient(45deg, hsl(var(--muted)) 25%, transparent 25%), 
+                linear-gradient(-45deg, hsl(var(--muted)) 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, hsl(var(--muted)) 75%), 
+                linear-gradient(-45deg, transparent 75%, hsl(var(--muted)) 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+  }
+
+  .bg-grid-pattern {
+    background-image: 
+      linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  /* Mobile optimizations */
+  @media (max-width: 768px) {
+    .camera-window-mobile {
+      position: fixed !important;
+      inset: 0 !important;
+      border-radius: 0 !important;
+    }
+  }
+
+  /* Tablet optimizations */
+  @media (min-width: 768px) and (max-width: 1024px) {
+    .camera-window-tablet {
+      inset: 1rem !important;
+    }
+  }
+
+  /* High DPI screens */
+  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 2dppx) {
+    .camera-placeholder {
+      background-size: 40px 40px;
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
