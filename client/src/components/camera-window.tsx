@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { useCamera } from "@/hooks/use-camera";
 import { useModel } from "@/hooks/use-model";
 import { useSpeech } from "@/hooks/use-speech";
-import { X, Volume2, VolumeX, CameraOff } from "lucide-react";
+import { X, Volume2, VolumeX, CameraOff, Camera as CameraSwitch } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface CameraWindowProps {
@@ -21,14 +21,33 @@ interface DetectedSign {
 
 export function CameraWindow({ isOpen, onClose }: CameraWindowProps) {
   // Destructure all hooks only once, including rawLabel
-  const { videoRef, isActive, isLoading, error, startCamera, stopCamera } = useCamera();
+  const { 
+    videoRef, 
+    isActive, 
+    isLoading, 
+    error, 
+    startCamera, 
+    stopCamera, 
+    switchCamera, 
+    cameraType,
+    availableCameras
+  } = useCamera();
+  
+  const [localError, setLocalError] = useState<string | null>(null);
   const { isLoaded, sign, confidence, feedback, rawLabel } = useModel(videoRef, isActive);
   const { isEnabled: voiceOn, speak, toggle: toggleVoice, lang, setLanguage } = useSpeech();
   const lastSpokenRef = useRef<string>("");
   const [recentSigns, setRecentSigns] = useState<DetectedSign[]>([]);
 
   // Start camera on open
-  useEffect(() => { if (isOpen) startCamera(); }, [isOpen, startCamera]);
+  useEffect(() => { 
+    if (isOpen) {
+      startCamera().catch(err => {
+        console.error('Error starting camera:', err);
+        setLocalError('Failed to start camera. Please check permissions.');
+      });
+    }
+  }, [isOpen, startCamera]);
   // Stop camera on close
   const handleClose = () => {
     try {
@@ -75,15 +94,32 @@ export function CameraWindow({ isOpen, onClose }: CameraWindowProps) {
             />
             <h2 className="text-base font-semibold text-black dark:text-white bg-white/80 dark:bg-[#111827]/80 px-3 py-1 rounded shadow">Sign2Speak Detection</h2>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleClose}
-            className="bg-white hover:bg-white/90 text-black rounded-full p-2 shadow-lg"
-            aria-label="Close"
-          >
-            <X className="h-5 w-5" />
-          </Button>
+          <div className="flex items-center gap-2">
+            {availableCameras.length > 1 && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => switchCamera().catch(err => {
+                console.error('Error switching camera:', err);
+                setLocalError('Failed to switch camera');
+              })}
+                className="bg-white hover:bg-white/90 text-black rounded-full p-2 shadow-lg"
+                aria-label="Switch Camera"
+                title={cameraType === 'user' ? 'Switch to back camera' : 'Switch to front camera'}
+              >
+                <CameraSwitch className="h-5 w-5" />
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleClose}
+              className="bg-white hover:bg-white/90 text-black rounded-full p-2 shadow-lg"
+              aria-label="Close"
+            >
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
         </div>
 
         {/* Video and overlay container */}
@@ -97,21 +133,31 @@ export function CameraWindow({ isOpen, onClose }: CameraWindowProps) {
               !isActive && "opacity-30"
             )}
             playsInline
+            autoPlay
             muted
+            onError={(e) => {
+              console.error('Video error:', e);
+              setLocalError('Failed to load video stream. Please check camera permissions and try again.');
+            }}
           />
           {/* Overlay: Camera not active (only over video area) */}
           {!isActive && (
-  <div className="absolute inset-0 flex flex-col items-center justify-center z-20 pointer-events-none">
-    <CameraOff className="h-20 w-20 opacity-80" />
-<span className="mt-6 text-base font-normal text-gray-500 dark:text-gray-400">Camera is off</span>
-  </div>
-)}
+            <div className="absolute inset-0 flex flex-col items-center justify-center z-20 pointer-events-none">
+              <CameraOff className="h-20 w-20 opacity-80" />
+              <span className="mt-6 text-base font-normal text-gray-500 dark:text-gray-400">
+                {error || localError || 'Camera is off'}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Controls */}
         <div className="absolute bottom-0 left-0 w-full flex justify-center gap-4 px-6 pb-6 z-10">
           <Button
-            onClick={isActive ? stopCamera : startCamera}
+            onClick={(e) => {
+              e.preventDefault();
+              isActive ? stopCamera() : startCamera();
+            }}
             disabled={isLoading}
             className={cn(
               "btn-hover px-6 py-3 text-base font-semibold",

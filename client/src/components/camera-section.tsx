@@ -11,14 +11,35 @@ interface CameraSectionProps {
   isVoiceEnabled: boolean;
   onToggleVoice: () => void;
   onVideoReady?: (video: HTMLVideoElement) => void;
+  onClose?: () => void;
 }
 
 export function CameraSection({ 
   isVoiceEnabled, 
   onToggleVoice, 
-  onVideoReady 
+  onVideoReady,
+  onClose 
 }: CameraSectionProps) {
-  const { isActive, isLoading, error, videoRef, toggleCamera } = useCamera();
+  const { isActive, isLoading, error, videoRef, startCamera, stopCamera } = useCamera();
+  
+  const handleStopCamera = () => {
+    try {
+      stopCamera();
+      if (onClose) {
+        onClose();
+      }
+    } catch (err) {
+      console.error('Error stopping camera:', err);
+    }
+  };
+
+  const handleStartCamera = async () => {
+    try {
+      await startCamera('user');
+    } catch (err) {
+      console.error('Failed to start camera:', err);
+    }
+  };
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -54,13 +75,13 @@ export function CameraSection({
               height={480}
             />
 
-            {/* Placeholder when camera is off */}
-            {!isActive && (
+            {/* Placeholder when camera is off, loading, or has an error */}
+            {((!isActive && !isLoading) || error) && (
               <div className="camera-placeholder rounded-xl w-full h-80 flex items-center justify-center border-2 border-dashed border-border">
                 <div className="text-center">
                   <Video className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <p className="text-muted-foreground font-medium">
-                    {error ? "Camera access failed" : "Camera feed will appear here"}
+                    {error ? "Camera Error" : "Camera feed will appear here"}
                   </p>
                   <p className="text-sm text-muted-foreground mt-2">640 x 480 resolution</p>
                   {error && (
@@ -78,23 +99,25 @@ export function CameraSection({
 
           {/* Camera Controls */}
           <div className="flex flex-wrap gap-4 mt-6 justify-center">
-            <Button
-              onClick={toggleCamera}
-              disabled={isLoading}
-              className={cn(
-                "btn-hover inline-flex items-center space-x-2",
-                isActive
-                  ? "bg-destructive hover:bg-destructive/90"
-                  : "bg-primary hover:bg-primary/90"
-              )}
-            >
-              {isActive ? (
+            {isActive ? (
+              <Button
+                onClick={handleStopCamera}
+                disabled={isLoading}
+                className="bg-destructive hover:bg-destructive/90 inline-flex items-center space-x-2"
+              >
                 <Pause className="h-4 w-4" />
-              ) : (
+                <span>Stop Camera</span>
+              </Button>
+            ) : (
+              <Button
+                onClick={handleStartCamera}
+                disabled={isLoading}
+                className="bg-primary hover:bg-primary/90 inline-flex items-center space-x-2"
+              >
                 <Play className="h-4 w-4" />
-              )}
-              <span>{isLoading ? "Loading..." : isActive ? "Pause Detection" : "Start Detection"}</span>
-            </Button>
+                <span>{isLoading ? "Loading..." : "Start Camera"}</span>
+              </Button>
+            )}
 
             <Button
               onClick={onToggleVoice}
